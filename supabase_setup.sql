@@ -32,10 +32,10 @@ DROP POLICY IF EXISTS "Isolar accounts por usuario" ON accounts;
 
 -- Criar Policies (Regras de Segurança)
 -- Permite acesso aos dados cujo user_id seja o seu, ou cujo user_id seja nulo (dados antigos de teste)
-CREATE POLICY "Isolar transações por usuario" ON transactions FOR ALL USING (auth.uid() = user_id OR user_id IS NULL);
-CREATE POLICY "Isolar cartoes por usuario" ON cards FOR ALL USING (auth.uid() = user_id OR user_id IS NULL);
-CREATE POLICY "Isolar settings por usuario" ON settings FOR ALL USING (auth.uid() = user_id OR user_id IS NULL);
-CREATE POLICY "Isolar loans por usuario" ON loans FOR ALL USING (auth.uid() = user_id OR user_id IS NULL);
-CREATE POLICY "Isolar history por usuario" ON history FOR ALL USING (auth.uid() = user_id OR user_id IS NULL);
-CREATE POLICY "Isolar goals por usuario" ON goals FOR ALL USING (auth.uid() = user_id OR user_id IS NULL);
-CREATE POLICY "Isolar accounts por usuario" ON accounts FOR ALL USING (auth.uid() = user_id OR user_id IS NULL);
+CREATE POLICY "Isolar transações por usuario" ON transactions FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "Isolar cartoes por usuario" ON cards FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "Isolar settings por usuario" ON settings FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "Isolar loans por usuario" ON loans FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "Isolar history por usuario" ON history FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "Isolar goals por usuario" ON goals FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "Isolar accounts por usuario" ON accounts FOR ALL USING (auth.uid() = user_id);
