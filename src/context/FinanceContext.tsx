@@ -33,10 +33,10 @@ interface FinanceContextType {
 
 const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
 
-const defaultAccounts: Account[] = [
-  { id: '11111111-1111-4111-a111-111111111111', name: 'Nubank', color: '#8b5cf6' },
-  { id: '22222222-2222-4222-a222-222222222222', name: 'Itaú', color: '#f97316' },
-  { id: '33333333-3333-4333-a333-333333333333', name: 'Inter', color: '#f59e0b' },
+const getDefaultAccounts = (): Account[] => [
+  { id: uuidv4(), name: 'Nubank', color: '#8b5cf6' },
+  { id: uuidv4(), name: 'Itaú', color: '#f97316' },
+  { id: uuidv4(), name: 'Inter', color: '#f59e0b' },
 ];
 
 export function FinanceProvider({ children }: { children: React.ReactNode }) {
@@ -74,7 +74,11 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
       // Accounts
       const { data: accData } = await supabase.from('accounts').select('*');
       if (accData && accData.length > 0) { setAccounts(accData); }
-      else { setAccounts(defaultAccounts); await supabase.from('accounts').insert(defaultAccounts).select(); }
+      else { 
+        const defaults = getDefaultAccounts();
+        setAccounts(defaults); 
+        await supabase.from('accounts').insert(defaults); 
+      }
 
       // Transactions
       const { data: txData } = await supabase.from('transactions').select('*');
