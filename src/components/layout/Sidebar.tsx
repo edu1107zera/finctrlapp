@@ -5,9 +5,11 @@ import { cn } from '../../lib/utils';
 interface SidebarProps {
   currentView: string;
   onNavigate: (view: string) => void;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
-export function Sidebar({ currentView, onNavigate }: SidebarProps) {
+export function Sidebar({ currentView, onNavigate, isOpen, onClose }: SidebarProps) {
   const mainNav = [
     { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
     { id: 'transactions', label: 'Transações', icon: <Wallet size={20} /> },
@@ -27,7 +29,17 @@ export function Sidebar({ currentView, onNavigate }: SidebarProps) {
   ];
 
   return (
-    <aside className="hidden lg:flex flex-col w-64 h-screen border-r border-[var(--border)] bg-[var(--surface)] pt-6 pb-4">
+    <>
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+      <aside className={cn(
+        "flex flex-col w-64 h-screen border-r border-[var(--border)] bg-[var(--surface)] pt-6 pb-4 transition-transform duration-300",
+        isOpen ? "fixed inset-y-0 left-0 z-50 shadow-2xl translate-x-0" : "hidden lg:flex"
+      )}>
       <div className="px-6 mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold font-heading tracking-tight text-[var(--fg)]">Nixx</h1>
@@ -52,7 +64,10 @@ export function Sidebar({ currentView, onNavigate }: SidebarProps) {
         {mainNav.map((item) => (
           <button
             key={item.id}
-            onClick={() => onNavigate(item.id)}
+            onClick={() => {
+              onNavigate(item.id);
+              onClose?.();
+            }}
             className={cn(
               "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
               currentView === item.id 
@@ -70,7 +85,10 @@ export function Sidebar({ currentView, onNavigate }: SidebarProps) {
         {bottomNav.map((item) => (
           <button
             key={item.id}
-            onClick={() => onNavigate(item.id)}
+            onClick={() => {
+              onNavigate(item.id);
+              onClose?.();
+            }}
             className={cn(
               "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 text-[var(--text-muted)] hover:bg-[var(--surface-2)] hover:text-[var(--fg)]"
             )}
@@ -80,6 +98,7 @@ export function Sidebar({ currentView, onNavigate }: SidebarProps) {
           </button>
         ))}
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }

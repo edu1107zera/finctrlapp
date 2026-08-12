@@ -30,6 +30,7 @@ import { motion, AnimatePresence } from 'motion/react';
 function AppContent() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleOpen = () => setIsCommandPaletteOpen(true);
@@ -70,7 +71,12 @@ function AppContent() {
         onNavigate={(view) => { setActiveTab(view); }}
       />
 
-      <Sidebar currentView={activeTab} onNavigate={setActiveTab} />
+      <Sidebar 
+        currentView={activeTab} 
+        onNavigate={setActiveTab} 
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+      />
 
       <main className="flex-1 flex flex-col min-w-0 h-full overflow-hidden relative">
         {/* Desktop header */}
@@ -85,6 +91,9 @@ function AppContent() {
             <ThemeSwitcher />
             <button onClick={() => setIsCommandPaletteOpen(true)} className="p-2 bg-[var(--surface-2)] text-[var(--text-muted)] hover:text-[var(--fg)] rounded-xl border border-[var(--border)]">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            </button>
+            <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 bg-[var(--surface-2)] text-[var(--text-muted)] hover:text-[var(--fg)] rounded-xl border border-[var(--border)]">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
             </button>
           </div>
         </header>
