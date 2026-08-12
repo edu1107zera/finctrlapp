@@ -63,25 +63,25 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
 
     async function fetchData() {
       // Settings
-      const { data: settingsData } = await supabase.from('settings').select('*').limit(1);
+      const { data: settingsData } = await supabase.from('settings').select('*').eq('user_id', user.id).limit(1);
       if (settingsData && settingsData.length > 0) {
         setSettings({ id: settingsData[0].id, fixedSalary: Number(settingsData[0].fixed_salary), salaryDay: Number(settingsData[0].salary_day) });
       } else {
-        const { data: newS } = await supabase.from('settings').insert([{ fixed_salary: 0, salary_day: 5 }]).select('*');
+        const { data: newS } = await supabase.from('settings').insert([{ fixed_salary: 0, salary_day: 5, user_id: user.id }]).select('*');
         if (newS && newS.length > 0) setSettings({ id: newS[0].id, fixedSalary: 0, salaryDay: 5 });
       }
 
       // Accounts
-      const { data: accData } = await supabase.from('accounts').select('*');
+      const { data: accData } = await supabase.from('accounts').select('*').eq('user_id', user.id);
       if (accData && accData.length > 0) { setAccounts(accData); }
       else { 
         const defaults = getDefaultAccounts();
         setAccounts(defaults); 
-        await supabase.from('accounts').insert(defaults); 
+        await supabase.from('accounts').insert(defaults.map(a => ({ ...a, user_id: user.id }))); 
       }
 
       // Transactions
-      const { data: txData } = await supabase.from('transactions').select('*');
+      const { data: txData } = await supabase.from('transactions').select('*').eq('user_id', user.id);
       if (txData) {
         setTransactions(txData.map((t: any) => ({
           id: t.id, accountId: t.account_id, type: t.type,
@@ -92,7 +92,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
       }
 
       // Goals
-      const { data: goalsData } = await supabase.from('goals').select('*');
+      const { data: goalsData } = await supabase.from('goals').select('*').eq('user_id', user.id);
       if (goalsData) {
         setGoals(goalsData.map((g: any) => ({
           id: g.id, name: g.name, targetAmount: Number(g.target_amount),
@@ -102,7 +102,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
       }
 
       // Loans
-      const { data: loansData } = await supabase.from('loans').select('*');
+      const { data: loansData } = await supabase.from('loans').select('*').eq('user_id', user.id);
       if (loansData) {
         setLoans(loansData.map((l: any) => ({
           id: l.id, name: l.name, bank: l.bank,
@@ -113,7 +113,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
       }
 
       // History
-      const { data: histData } = await supabase.from('history').select('*').order('paid_at', { ascending: false }).limit(200);
+      const { data: histData } = await supabase.from('history').select('*').eq('user_id', user.id).order('paid_at', { ascending: false }).limit(200);
       if (histData) {
         setHistory(histData.map((h: any) => ({
           id: h.id, type: h.type, description: h.description,
@@ -122,7 +122,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
       }
 
       // Cards
-      const { data: cardsData } = await supabase.from('cards').select('*');
+      const { data: cardsData } = await supabase.from('cards').select('*').eq('user_id', user.id);
       if (cardsData) {
         setCards(cardsData.map((c: any) => ({
           id: c.id, name: c.name, limitAmount: Number(c.limit_amount),
@@ -138,11 +138,11 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
     const id = uuidv4();
     const newAcc = { ...acc, id };
     setAccounts(prev => [...prev, newAcc]);
-    await supabase.from('accounts').insert([newAcc]);
+    await supabase.from('accounts').insert([{ ...newAcc, user_id: user?.id }]);
   };
   const deleteAccount = async (id: string) => {
     setAccounts(prev => prev.filter(a => a.id !== id));
-    await supabase.from('accounts').delete().eq('id', id);
+    await supabase.from('accounts').delete().eq('id', id).eq('user_id', user?.id);
   };
 
   // ---- TRANSACTIONS ----
@@ -150,7 +150,8 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
     const { data } = await supabase.from('transactions').insert([{
       account_id: tx.accountId, type: tx.type, amount: tx.amount,
       category: tx.category, date: tx.date, description: tx.description, status: tx.status || 'paid',
-      card_id: tx.cardId, installment_current: tx.installmentCurrent, installment_total: tx.installmentTotal
+      card_id: tx.cardId, installment_current: tx.installmentCurrent, installment_total: tx.installmentTotal,
+      user_id: user?.id
     }]).select('*');
     
     if (data && data[0]) {
@@ -180,13 +181,13 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
     if (updates.installmentCurrent !== undefined) payload.installment_current = updates.installmentCurrent;
     if (updates.installmentTotal !== undefined) payload.installment_total = updates.installmentTotal;
     
-    await supabase.from('transactions').update(payload).eq('id', id);
+    await supabase.from('transactions').update(payload).eq('id', id).eq('user_id', user?.id);
     setTransactions(transactions.map(t => t.id === id ? { ...t, ...updates } : t));
   };
 
   const deleteTransaction = async (id: string) => {
     setTransactions(prev => prev.filter(t => t.id !== id));
-    await supabase.from('transactions').delete().eq('id', id);
+    await supabase.from('transactions').delete().eq('id', id).eq('user_id', user?.id);
   };
 
   // ---- GOALS ----
@@ -197,29 +198,31 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
     await supabase.from('goals').insert([{
       id: newGoal.id, name: newGoal.name, target_amount: newGoal.targetAmount,
       current_amount: newGoal.currentAmount, monthly_contribution: newGoal.monthlyContribution,
-      annual_interest_rate: newGoal.annualInterestRate, deadline: newGoal.deadline
+      annual_interest_rate: newGoal.annualInterestRate, deadline: newGoal.deadline,
+      user_id: user?.id
     }]);
   };
   const deleteGoal = async (id: string) => {
     setGoals(prev => prev.filter(g => g.id !== id));
-    await supabase.from('goals').delete().eq('id', id);
+    await supabase.from('goals').delete().eq('id', id).eq('user_id', user?.id);
   };
   const updateGoal = async (id: string, updates: Partial<Goal>) => {
+    const payload: any = {};
+    if (updates.name) payload.name = updates.name;
+    if (updates.targetAmount !== undefined) payload.target_amount = updates.targetAmount;
+    if (updates.currentAmount !== undefined) payload.current_amount = updates.currentAmount;
+    if (updates.monthlyContribution !== undefined) payload.monthly_contribution = updates.monthlyContribution;
+    if (updates.annualInterestRate !== undefined) payload.annual_interest_rate = updates.annualInterestRate;
+    if (updates.deadline) payload.deadline = updates.deadline;
+
+    await supabase.from('goals').update(payload).eq('id', id).eq('user_id', user?.id);
     setGoals(prev => prev.map(g => g.id === id ? { ...g, ...updates } : g));
-    const dbUpdates: any = {};
-    if (updates.name !== undefined) dbUpdates.name = updates.name;
-    if (updates.targetAmount !== undefined) dbUpdates.target_amount = updates.targetAmount;
-    if (updates.currentAmount !== undefined) dbUpdates.current_amount = updates.currentAmount;
-    if (updates.monthlyContribution !== undefined) dbUpdates.monthly_contribution = updates.monthlyContribution;
-    if (updates.annualInterestRate !== undefined) dbUpdates.annual_interest_rate = updates.annualInterestRate;
-    if (updates.deadline !== undefined) dbUpdates.deadline = updates.deadline;
-    if (Object.keys(dbUpdates).length > 0) await supabase.from('goals').update(dbUpdates).eq('id', id);
   };
 
   // ---- SETTINGS ----
   const updateSettings = async (s: Settings) => {
     setSettings(s);
-    if (s.id) await supabase.from('settings').update({ fixed_salary: s.fixedSalary, salary_day: s.salaryDay }).eq('id', s.id);
+    if (s.id) await supabase.from('settings').update({ fixed_salary: s.fixedSalary, salary_day: s.salaryDay }).eq('id', s.id).eq('user_id', user?.id);
   };
 
   // ---- LOANS ----
@@ -231,19 +234,21 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
       id: newLoan.id, name: newLoan.name, bank: newLoan.bank,
       total_amount: newLoan.totalAmount, monthly_payment: newLoan.monthlyPayment,
       annual_interest_rate: newLoan.annualInterestRate, start_date: newLoan.startDate,
-      end_date: newLoan.endDate, due_day: newLoan.dueDay, status: 'active'
+      end_date: newLoan.endDate, due_day: newLoan.dueDay, status: 'active',
+      user_id: user?.id
     }]);
   };
   const deleteLoan = async (id: string) => {
     setLoans(prev => prev.filter(l => l.id !== id));
-    await supabase.from('loans').delete().eq('id', id);
+    await supabase.from('loans').delete().eq('id', id).eq('user_id', user?.id);
   };
   const updateLoan = async (id: string, updates: Partial<Loan>) => {
+    const payload: any = {};
+    if (updates.status !== undefined) payload.status = updates.status;
+    if (updates.monthlyPayment !== undefined) payload.monthly_payment = updates.monthlyPayment;
+    
+    await supabase.from('loans').update(payload).eq('id', id).eq('user_id', user?.id);
     setLoans(prev => prev.map(l => l.id === id ? { ...l, ...updates } : l));
-    const dbUpdates: any = {};
-    if (updates.status !== undefined) dbUpdates.status = updates.status;
-    if (updates.monthlyPayment !== undefined) dbUpdates.monthly_payment = updates.monthlyPayment;
-    if (Object.keys(dbUpdates).length > 0) await supabase.from('loans').update(dbUpdates).eq('id', id);
   };
 
   // ---- HISTORY ----
@@ -254,7 +259,8 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
     setHistory(prev => [newEntry, ...prev]);
     await supabase.from('history').insert([{
       id: newEntry.id, type: newEntry.type, description: newEntry.description,
-      amount: newEntry.amount, reference_id: newEntry.referenceId || null
+      amount: newEntry.amount, reference_id: newEntry.referenceId || null,
+      paid_at: newEntry.paidAt, user_id: user?.id
     }]);
   };
 
@@ -273,9 +279,11 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
 
   // ---- CARDS ----
   const addCard = async (card: Omit<Card, 'id'>) => {
+    const id = uuidv4();
     const { data } = await supabase.from('cards').insert([{
-      name: card.name, limit_amount: card.limitAmount,
-      closing_day: card.closingDay, due_day: card.dueDay, color: card.color
+      id, name: card.name, limit_amount: card.limitAmount,
+      closing_day: card.closingDay, due_day: card.dueDay, color: card.color,
+      user_id: user?.id
     }]).select('*');
     if (data && data[0]) {
       const c = data[0];
@@ -297,12 +305,12 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
     if (updates.dueDay !== undefined) payload.due_day = updates.dueDay;
     if (updates.color) payload.color = updates.color;
     
-    await supabase.from('cards').update(payload).eq('id', id);
+    await supabase.from('cards').update(payload).eq('id', id).eq('user_id', user?.id);
     setCards(cards.map(c => c.id === id ? { ...c, ...updates } : c));
   };
 
   const deleteCard = async (id: string) => {
-    await supabase.from('cards').delete().eq('id', id);
+    await supabase.from('cards').delete().eq('id', id).eq('user_id', user?.id);
     setCards(cards.filter(c => c.id !== id));
   };
 
