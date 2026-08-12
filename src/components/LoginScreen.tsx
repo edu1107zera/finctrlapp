@@ -83,20 +83,19 @@ export default function LoginScreen() {
             >
               <div className="mb-8 flex flex-col items-center">
                 <div className="p-4 bg-[#2a2a2c]/50 backdrop-blur-xl rounded-2xl border border-[#464554]/50 mb-6 shadow-inner">
-                  <svg className="w-16 h-16 drop-shadow-[0_0_20px_rgba(168,85,247,0.4)]" viewBox="0 0 24 24">
+                  <svg className="w-16 h-16 drop-shadow-[0_0_20px_rgba(99,102,241,0.5)]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <defs>
-                      <linearGradient id="grad1" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#818cf8" />
-                        <stop offset="100%" stopColor="#4f46e5" />
+                      <linearGradient id="sqBg" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stopColor="#2a2a2c" />
+                        <stop offset="100%" stopColor="#131315" />
                       </linearGradient>
-                      <linearGradient id="grad2" x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stopColor="#c0c1ff" />
+                      <linearGradient id="fFill" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stopColor="#818cf8" />
                         <stop offset="100%" stopColor="#a855f7" />
                       </linearGradient>
                     </defs>
-                    <path d="M7 6 L11 4 V18 L7 20 Z" fill="url(#grad1)" />
-                    <path d="M11 4 L18 7.5 V10 L11 6.5 Z" fill="url(#grad2)" />
-                    <path d="M11 10 L16 12.5 V15 L11 12.5 Z" fill="url(#grad2)" />
+                    <rect x="2" y="2" width="20" height="20" rx="4" fill="url(#sqBg)" stroke="#464554" strokeWidth="1.5"/>
+                    <path d="M8 6h8v3h-5v3h4v3h-4v4H8V6z" fill="url(#fFill)" />
                   </svg>
                 </div>
                 <h1 className="text-6xl md:text-8xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-b from-white to-[#494bd6] drop-shadow-[0_0_30px_rgba(255,255,255,0.3)] mb-4 font-[Sora]">
