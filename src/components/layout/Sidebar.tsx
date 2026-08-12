@@ -1,5 +1,6 @@
 import React from 'react';
-import { LayoutDashboard, Wallet, CreditCard, Calendar, Target, TrendingUp, Sparkles, Settings, User, Search, Landmark, History } from 'lucide-react';
+import { LayoutDashboard, Wallet, CreditCard, Calendar, Target, TrendingUp, Sparkles, Settings, User, Search, Landmark, History, LogOut } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import { cn } from '../../lib/utils';
 
 interface SidebarProps {
@@ -10,6 +11,8 @@ interface SidebarProps {
 }
 
 export function Sidebar({ currentView, onNavigate, isOpen, onClose }: SidebarProps) {
+  const { signOut } = useAuth();
+  
   const mainNav = [
     { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
     { id: 'transactions', label: 'Transações', icon: <Wallet size={20} /> },
@@ -97,6 +100,16 @@ export function Sidebar({ currentView, onNavigate, isOpen, onClose }: SidebarPro
             {item.label}
           </button>
         ))}
+        <button
+          onClick={() => {
+            onClose?.();
+            signOut();
+          }}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 text-red-500/80 hover:bg-red-500/10 hover:text-red-500"
+        >
+          <LogOut size={20} />
+          Sair
+        </button>
       </div>
       </aside>
     </>
