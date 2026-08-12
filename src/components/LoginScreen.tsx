@@ -83,9 +83,20 @@ export default function LoginScreen() {
             >
               <div className="mb-8 flex flex-col items-center">
                 <div className="p-4 bg-[#2a2a2c]/50 backdrop-blur-xl rounded-2xl border border-[#464554]/50 mb-6 shadow-inner">
-                  <svg className="w-12 h-12 text-[#c0c1ff] drop-shadow-[0_0_15px_rgba(192,193,255,0.5)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
-                    <path d="M5 3v4M3 5h4"/>
+                  <svg className="w-16 h-16 drop-shadow-[0_0_20px_rgba(168,85,247,0.4)]" viewBox="0 0 24 24">
+                    <defs>
+                      <linearGradient id="grad1" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#818cf8" />
+                        <stop offset="100%" stopColor="#4f46e5" />
+                      </linearGradient>
+                      <linearGradient id="grad2" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stopColor="#c0c1ff" />
+                        <stop offset="100%" stopColor="#a855f7" />
+                      </linearGradient>
+                    </defs>
+                    <path d="M7 6 L11 4 V18 L7 20 Z" fill="url(#grad1)" />
+                    <path d="M11 4 L18 7.5 V10 L11 6.5 Z" fill="url(#grad2)" />
+                    <path d="M11 10 L16 12.5 V15 L11 12.5 Z" fill="url(#grad2)" />
                   </svg>
                 </div>
                 <h1 className="text-6xl md:text-8xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-b from-white to-[#494bd6] drop-shadow-[0_0_30px_rgba(255,255,255,0.3)] mb-4 font-[Sora]">
