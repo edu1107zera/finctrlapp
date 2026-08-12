@@ -1,0 +1,126 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --color-background: #09090B;
+  --color-surface: #111113;
+  --color-surface-2: #18181B;
+  --color-border: #27272A;
+  --color-text-primary: #FAFAFA;
+  --color-text-secondary: #A1A1AA;
+  --font-sans: "Inter", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  :root {
+    --bg: #FAFAFA;
+    --fg: #09090B;
+    --surface: #ffffff;
+    --surface-2: #f4f4f5;
+    --border: #e4e4e7;
+    --text-muted: #71717a;
+  }
+
+  .dark {
+    --bg: #09090B;
+    --fg: #FAFAFA;
+    --surface: #111113;
+    --surface-2: #18181B;
+    --border: #27272A;
+    --text-muted: #A1A1AA;
+  }
+
+  body {
+    @apply transition-colors duration-300 ease-in-out bg-[var(--bg)] text-[var(--fg)] antialiased;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading tracking-tight font-bold;
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* Cyber theme glow effects */
+.cyber .fin-card {
+  border-color: #2A2060;
+  background: linear-gradient(135deg, #0D0B2B 0%, #130F3A 100%);
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.05);
+}
+.cyber .fin-card:hover {
+  box-shadow: 0 0 30px rgba(168, 85, 247, 0.12);
+}
+.cyber h1, .cyber h2, .cyber h3 {
+  background: linear-gradient(135deg, #E0E0FF, #A855F7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Ocean theme glow effects */
+.ocean .fin-card {
+  border-color: #0F3352;
+  background: linear-gradient(135deg, #071828 0%, #0A2135 100%);
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.05);
+}
+.ocean .fin-card:hover {
+  box-shadow: 0 0 30px rgba(6, 182, 212, 0.12);
+}
+.ocean h1, .ocean h2, .ocean h3 {
+  background: linear-gradient(135deg, #D6F0FF, #06B6D4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Animated accent line for both neon themes */
+.cyber aside, .ocean aside {
+  border-right-color: var(--accent) !important;
+  box-shadow: 2px 0 20px var(--accent-glow);
+}
+
+
+.markdown-body {
+  p {
+    margin-bottom: 0.5rem;
+  }
+  p:last-child {
+    margin-bottom: 0;
+  }
+  strong {
+    font-weight: 600;
+  }
+  ul {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  ol {
+    list-style-type: decimal;
+    padding-left: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+}
+
+.fin-card {
+  @apply bg-[var(--surface)] border border-[var(--border)] rounded-2xl;
+}
+
+.input-style {
+  @apply w-full bg-[var(--bg)] border border-[var(--border)] rounded-xl px-4 py-3 text-[var(--fg)] outline-none focus:border-indigo-500 transition-all text-sm;
+}
+
+.label-style {
+  @apply block text-sm font-medium text-[var(--text-muted)] mb-1.5;
+}
+
