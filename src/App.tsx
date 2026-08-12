@@ -80,7 +80,7 @@ function AppContent() {
 
         {/* Mobile header */}
         <header className="lg:hidden flex items-center justify-between px-6 py-4 bg-[var(--surface)]/80 backdrop-blur-xl border-b border-[var(--border)] z-30">
-          <h1 className="text-xl font-bold font-heading tracking-tight text-[var(--fg)]">FINCTRL</h1>
+          <h1 className="text-xl font-bold font-heading tracking-tight text-[var(--fg)]">Nixx</h1>
           <div className="flex items-center gap-2">
             <ThemeSwitcher />
             <button onClick={() => setIsCommandPaletteOpen(true)} className="p-2 bg-[var(--surface-2)] text-[var(--text-muted)] hover:text-[var(--fg)] rounded-xl border border-[var(--border)]">
@@ -121,7 +121,7 @@ function AppRoot() {
   
   useEffect(() => {
     if (user && !loading) {
-      window.dispatchEvent(new Event('finctrl:expand'));
+      window.dispatchEvent(new Event('nixx:expand'));
     }
   }, [user, loading]);
 

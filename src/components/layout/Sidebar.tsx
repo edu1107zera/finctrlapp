@@ -30,7 +30,7 @@ export function Sidebar({ currentView, onNavigate }: SidebarProps) {
     <aside className="hidden lg:flex flex-col w-64 h-screen border-r border-[var(--border)] bg-[var(--surface)] pt-6 pb-4">
       <div className="px-6 mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold font-heading tracking-tight text-[var(--fg)]">FINCTRL</h1>
+          <h1 className="text-2xl font-bold font-heading tracking-tight text-[var(--fg)]">Nixx</h1>
           <p className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] font-semibold mt-1">Know your money.</p>
         </div>
       </div>

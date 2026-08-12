@@ -627,16 +627,16 @@ function __OriginkitBase_RubikParticles({
     const handleImplode = () => sceneRef.current?.implode();
     const handleExpand = () => sceneRef.current?.expand();
 
-    window.addEventListener('finctrl:signin', handleSignin);
-    window.addEventListener('finctrl:implode', handleImplode);
-    window.addEventListener('finctrl:expand', handleExpand);
+    window.addEventListener('nixx:signin', handleSignin);
+    window.addEventListener('nixx:implode', handleImplode);
+    window.addEventListener('nixx:expand', handleExpand);
 
     return () => {
       cancelled = true;
       resizeObserver.disconnect();
-      window.removeEventListener('finctrl:signin', handleSignin);
-      window.removeEventListener('finctrl:implode', handleImplode);
-      window.removeEventListener('finctrl:expand', handleExpand);
+      window.removeEventListener('nixx:signin', handleSignin);
+      window.removeEventListener('nixx:implode', handleImplode);
+      window.removeEventListener('nixx:expand', handleExpand);
       sceneRef.current?.dispose();
       sceneRef.current = null;
     };

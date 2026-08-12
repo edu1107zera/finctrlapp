@@ -17,12 +17,12 @@ export default function LoginScreen() {
 
   const handleStartSignIn = () => {
     // Trigger the 3D explosion
-    window.dispatchEvent(new Event('finctrl:signin'));
+    window.dispatchEvent(new Event('nixx:signin'));
     setShowForm(true);
   };
 
   const handleGoogleLogin = async () => {
-    window.dispatchEvent(new Event('finctrl:implode'));
+    window.dispatchEvent(new Event('nixx:implode'));
     setIsLoggingIn(true);
     setErrorMsg('');
     try {
@@ -41,7 +41,7 @@ export default function LoginScreen() {
       return;
     }
     
-    window.dispatchEvent(new Event('finctrl:implode'));
+    window.dispatchEvent(new Event('nixx:implode'));
     setIsLoggingIn(true);
     setErrorMsg('');
     
@@ -95,11 +95,11 @@ export default function LoginScreen() {
                       </linearGradient>
                     </defs>
                     <rect x="2" y="2" width="20" height="20" rx="4" fill="url(#sqBg)" stroke="#464554" strokeWidth="1.5"/>
-                    <path d="M8 6h8v3h-5v3h4v3h-4v4H8V6z" fill="url(#fFill)" />
+                    <path d="M6 18V6h3l6 8.5V6h3v12h-3l-6-8.5V18H6z" fill="url(#fFill)" />
                   </svg>
                 </div>
                 <h1 className="text-6xl md:text-8xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-b from-white to-[#494bd6] drop-shadow-[0_0_30px_rgba(255,255,255,0.3)] mb-4 font-[Sora]">
-                  FINCTRL
+                  Nixx
                 </h1>
                 <p className="text-sm md:text-base font-bold tracking-[0.3em] uppercase text-[#c0c1ff]/70 font-[JetBrains_Mono]">
                   KNOW YOUR MONEY.
@@ -127,7 +127,7 @@ export default function LoginScreen() {
               <div className="w-full max-w-md p-8 rounded-2xl bg-[#2a2a2c]/80 backdrop-blur-md border border-[#464554]/30 shadow-2xl">
                 <div className="text-center mb-8">
                   <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#c0c1ff] to-[#494bd6] mb-2 font-[Sora]">
-                    FINCTRL
+                    Nixx
                   </h2>
                   <p className="text-sm text-[#c0c1ff]/70 tracking-widest font-[JetBrains_Mono]">KNOW YOUR MONEY.</p>
                 </div>
@@ -228,8 +228,8 @@ export default function LoginScreen() {
       {/* Footer */}
       <footer className="bottom-0 w-full py-4 bg-transparent z-20 absolute pointer-events-none font-[Hanken_Grotesk]">
         <div className="flex flex-col md:flex-row justify-between items-center px-4 md:px-6 gap-2 w-full max-w-7xl mx-auto pointer-events-auto">
-          <div className="font-[JetBrains_Mono] text-[#c0c1ff]/50 hidden md:block tracking-widest text-sm">FINCTRL</div>
-          <div className="text-xs md:text-sm text-[#c7c4d7]/50 text-center md:text-left">© 2024 FINCTRL. Hyper-Digital Professional Grade.</div>
+          <div className="font-[JetBrains_Mono] text-[#c0c1ff]/50 hidden md:block tracking-widest text-sm">Nixx</div>
+          <div className="text-xs md:text-sm text-[#c7c4d7]/50 text-center md:text-left">© 2024 Nixx. Hyper-Digital Professional Grade.</div>
           <div className="flex flex-wrap justify-center gap-4 text-xs md:text-sm text-[#c7c4d7]/50">
             <button className="hover:text-[#c0c1ff] transition-colors bg-transparent border-none p-0 cursor-pointer">Security</button>
             <button className="hover:text-[#c0c1ff] transition-colors bg-transparent border-none p-0 cursor-pointer">Privacy Policy</button>
