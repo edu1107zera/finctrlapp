@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'motion/react';
 export default function Transactions() {
   const { transactions, addTransaction, deleteTransaction, updateTransaction, accounts } = useFinance();
   const [isAdding, setIsAdding] = useState(false);
+  const [frequency, setFrequency] = useState<'once' | 'installment' | 'fixed'>('once');
   const [searchTerm, setSearchTerm] = useState('');
   const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -43,9 +44,21 @@ export default function Transactions() {
     if (!formData.amount || !formData.category || !formData.date || !formData.description || !formData.accountId) return;
     
     const baseAmount = parseFloat(formData.amount);
-    const installments = parseInt(formData.installments) || 1;
-    const installmentsPaid = parseInt(formData.installmentsPaid) || 0;
-    const instAmount = baseAmount / installments;
+    
+    let installments = 1;
+    let installmentsPaid = 0;
+    let instAmount = baseAmount;
+    
+    if (frequency === 'installment') {
+      installments = parseInt(formData.installments) || 1;
+      installmentsPaid = parseInt(formData.installmentsPaid) || 0;
+      instAmount = baseAmount / installments;
+    } else if (frequency === 'fixed') {
+      installments = 24; // 2 anos de recorrência
+      installmentsPaid = 0;
+      instAmount = baseAmount;
+    }
+
     const baseDate = new Date(formData.date);
 
     for (let i = installmentsPaid; i < installments; i++) {
@@ -58,14 +71,15 @@ export default function Transactions() {
         amount: instAmount,
         category: formData.category,
         date: txDate.toISOString().split('T')[0],
-        description: formData.description + (installments > 1 ? ` (${i+1}/${installments})` : ''),
-        status: formData.status,
-        installmentCurrent: i + 1,
-        installmentTotal: installments
+        description: formData.description + (frequency === 'installment' && installments > 1 ? ` (${i+1}/${installments})` : ''),
+        status: i === installmentsPaid ? formData.status : 'pending', // Apenas a primeira pode ser marcada como paga no momento da criação
+        installmentCurrent: frequency === 'installment' ? i + 1 : undefined,
+        installmentTotal: frequency === 'installment' ? installments : undefined
       });
     }
 
     setFormData({ ...formData, amount: '', category: '', description: '', status: 'paid', installments: '1', installmentsPaid: '0' });
+    setFrequency('once');
     setIsAdding(false);
   };
 
@@ -174,27 +188,56 @@ export default function Transactions() {
                 />
               </div>
 
-              {formData.type === 'expense' && (
-                <div className="grid grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Frequência</label>
+                <div className="flex p-1 bg-zinc-100 dark:bg-zinc-950/50 rounded-2xl border border-zinc-200 dark:border-zinc-800">
+                  <button type="button" onClick={() => setFrequency('once')} className={cn("flex-1 py-2 rounded-xl text-sm font-medium transition-all", frequency === 'once' ? "bg-white dark:bg-zinc-800 text-indigo-600 shadow-sm" : "text-zinc-500 hover:text-zinc-700")}>
+                    Única
+                  </button>
+                  {formData.type === 'expense' && (
+                    <button type="button" onClick={() => setFrequency('installment')} className={cn("flex-1 py-2 rounded-xl text-sm font-medium transition-all", frequency === 'installment' ? "bg-white dark:bg-zinc-800 text-indigo-600 shadow-sm" : "text-zinc-500 hover:text-zinc-700")}>
+                      Parcelada
+                    </button>
+                  )}
+                  <button type="button" onClick={() => setFrequency('fixed')} className={cn("flex-1 py-2 rounded-xl text-sm font-medium transition-all", frequency === 'fixed' ? "bg-white dark:bg-zinc-800 text-indigo-600 shadow-sm" : "text-zinc-500 hover:text-zinc-700")}>
+                    Fixa (Mensalidade)
+                  </button>
+                </div>
+              </div>
+
+              {frequency === 'installment' && formData.type === 'expense' && (
+                <div className="grid grid-cols-2 gap-4 md:col-span-2">
                   <div>
                     <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Total de Parcelas</label>
                     <input 
-                      type="number" min="1" max="120" required
+                      type="number" min="1" max="120" required={frequency === 'installment'}
                       className="w-full p-3 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-zinc-100 transition-shadow"
                       value={formData.installments}
                       onChange={e => setFormData({...formData, installments: e.target.value})}
                     />
-                    <p className="text-[10px] text-zinc-500 mt-1">Soma total.</p>
+                    <p className="text-[10px] text-zinc-500 mt-1">O valor será dividido.</p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Já Pagas</label>
                     <input 
-                      type="number" min="0" max="120" required
+                      type="number" min="0" max="120" required={frequency === 'installment'}
                       className="w-full p-3 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-zinc-100 transition-shadow"
                       value={formData.installmentsPaid}
                       onChange={e => setFormData({...formData, installmentsPaid: e.target.value})}
                     />
-                    <p className="text-[10px] text-zinc-500 mt-1">Quantas já quitou.</p>
+                    <p className="text-[10px] text-zinc-500 mt-1">Quantas parcelas já quitou.</p>
+                  </div>
+                </div>
+              )}
+
+              {frequency === 'fixed' && (
+                <div className="md:col-span-2 bg-indigo-50 dark:bg-indigo-500/10 p-4 rounded-2xl border border-indigo-100 dark:border-indigo-500/20 text-indigo-700 dark:text-indigo-300 flex items-start gap-3">
+                  <div className="p-2 bg-indigo-100 dark:bg-indigo-500/20 rounded-lg shrink-0">
+                    <Clock size={20} />
+                  </div>
+                  <div className="text-sm">
+                    <p className="font-bold mb-0.5">Assinatura / Conta Fixa</p>
+                    <p className="opacity-90 leading-relaxed">O Nixx vai replicar esse registro para os próximos <strong>2 anos</strong>. O valor {formData.type === 'expense' ? 'será cobrado' : 'será adicionado'} integralmente a cada mês. Você poderá marcar como "Pago" individualmente no momento certo ou alterar o valor de um mês específico se houver reajuste.</p>
                   </div>
                 </div>
               )}
