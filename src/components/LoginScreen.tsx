@@ -13,7 +13,7 @@ export default function LoginScreen() {
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [errorMsg, setErrorMsg] = useState('');
+  const [msg, setMsg] = useState({ text: '', type: 'error' as 'error' | 'success' | 'warning' });
 
   const handleStartSignIn = () => {
     // Trigger the 3D explosion
@@ -24,12 +24,12 @@ export default function LoginScreen() {
   const handleGoogleLogin = async () => {
     window.dispatchEvent(new Event('nixx:implode'));
     setIsLoggingIn(true);
-    setErrorMsg('');
+    setMsg({ text: '', type: 'error' });
     try {
       await signInWithGoogle();
     } catch (e: any) {
       console.error(e);
-      setErrorMsg(e.message || 'Erro ao conectar com o Google.');
+      setMsg({ text: e.message || 'Erro ao conectar com o Google.', type: 'warning' });
       setIsLoggingIn(false);
     }
   };
@@ -37,18 +37,18 @@ export default function LoginScreen() {
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      setErrorMsg('Preencha email e senha.');
+      setMsg({ text: 'Preencha email e senha.', type: 'error' });
       return;
     }
     
     window.dispatchEvent(new Event('nixx:implode'));
     setIsLoggingIn(true);
-    setErrorMsg('');
+    setMsg({ text: '', type: 'error' });
     
     try {
       if (isSignUp) {
         await signUpWithEmail(email, password);
-        setErrorMsg('Conta criada! Verifique seu email para confirmar.');
+        setMsg({ text: 'Conta criada! Verifique seu email para confirmar.', type: 'success' });
         setIsLoggingIn(false);
       } else {
         await signInWithEmail(email, password);
@@ -56,11 +56,11 @@ export default function LoginScreen() {
     } catch (e: any) {
       console.error(e);
       if (e.message?.includes('Invalid login credentials')) {
-        setErrorMsg('Email ou senha incorretos.');
+        setMsg({ text: 'Email ou senha incorretos.', type: 'error' });
       } else if (e.message?.includes('User already registered')) {
-        setErrorMsg('Este email já está cadastrado.');
+        setMsg({ text: 'Este email já está cadastrado.', type: 'error' });
       } else {
-        setErrorMsg(e.message || 'Erro ao autenticar.');
+        setMsg({ text: e.message || 'Erro ao autenticar.', type: 'warning' });
       }
       setIsLoggingIn(false);
     }
@@ -127,21 +127,27 @@ export default function LoginScreen() {
               <div className="w-full max-w-md p-8 rounded-2xl bg-[#2a2a2c]/80 backdrop-blur-md border border-[#464554]/30 shadow-2xl">
                 <div className="text-center mb-8">
                   <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#c0c1ff] to-[#494bd6] mb-2 font-[Sora]">
-                    Nixx
+                    {isSignUp ? 'Criar Conta Nixx' : 'Bem-vindo de volta'}
                   </h2>
-                  <p className="text-sm text-[#c0c1ff]/70 tracking-widest font-[JetBrains_Mono]">KNOW YOUR MONEY.</p>
+                  <p className="text-sm text-[#c0c1ff]/70 tracking-widest font-[JetBrains_Mono]">
+                    {isSignUp ? 'REGISTER TO START.' : 'KNOW YOUR MONEY.'}
+                  </p>
                 </div>
 
                 <AnimatePresence mode="wait">
-                  {errorMsg && (
+                  {msg.text && (
                     <motion.div 
                       initial={{ opacity: 0, height: 0, marginBottom: 0 }}
                       animate={{ opacity: 1, height: 'auto', marginBottom: 20 }}
                       exit={{ opacity: 0, height: 0, marginBottom: 0 }}
-                      className="p-3 bg-red-500/10 border border-red-500/20 text-[#ffb4ab] text-sm rounded-lg flex items-center gap-2"
+                      className={`p-3 text-sm rounded-lg flex items-center gap-2 border ${
+                        msg.type === 'error' ? 'bg-red-500/10 border-red-500/20 text-[#ffb4ab]' : 
+                        msg.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300' :
+                        'bg-yellow-500/10 border-yellow-500/20 text-yellow-300'
+                      }`}
                     >
                       <AlertCircle size={16} className="shrink-0" />
-                      <p>{errorMsg}</p>
+                      <p>{msg.text}</p>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -194,10 +200,10 @@ export default function LoginScreen() {
                     disabled={isLoggingIn}
                     className="w-full py-3 rounded-lg text-white font-bold text-base mt-4 bg-gradient-to-br from-indigo-500 to-purple-500 shadow-[0_0_15px_rgba(99,102,241,0.5)] hover:shadow-[0_0_25px_rgba(99,102,241,0.7)] hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 flex items-center justify-center"
                   >
-                     {isLoggingIn && !errorMsg.includes('Conta criada') ? (
+                     {isLoggingIn && msg.type !== 'success' ? (
                         <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                       ) : (
-                        <span>{isSignUp ? 'Sign Up' : 'Log In'}</span>
+                        <span>{isSignUp ? 'Criar Conta' : 'Acessar Conta'}</span>
                       )}
                   </button>
 
