@@ -28,7 +28,9 @@ export interface Goal {
   currentAmount: number;
   monthlyContribution: number;
   annualInterestRate: number; // e.g., 10 for 10%
+  startDate: string; // ISO date string
   deadline: string; // ISO date string
+  deductMonthly?: boolean;
 }
 
 export interface Settings {
@@ -74,6 +76,9 @@ export interface Investment {
   institution: string;
   investedAmount: number;
   currentAmount: number;
-  investmentDate: string;
+  monthlyContribution?: number;
+  investmentDate: string; // serves as startDate
+  endDate?: string;
   objective: string;
+  deductMonthly?: boolean;
 }

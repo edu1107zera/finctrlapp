@@ -18,7 +18,7 @@ function getInvoiceMonth(dateStr: string, closingDay: number): string {
 }
 
 export default function Dashboard() {
-  const { transactions, settings, loans, cards } = useFinance();
+  const { transactions, settings, loans, cards, goals, investments } = useFinance();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showNextMonthBudget, setShowNextMonthBudget] = useState(false);
 
@@ -72,8 +72,28 @@ export default function Dashboard() {
   });
   const totalLoans = activeLoans.reduce((s, l) => s + l.monthlyPayment, 0);
 
-  // 5. Cálculo Final: Sobra = Receitas - (Despesas Banco + Faturas + Empréstimos)
-  const totalExpensesAll = totalBankExpenses + totalCardsInvoice + totalLoans;
+  // 4.5 Metas e Investimentos (Aportes mensais)
+  const recurringGoals = goals.filter(g => {
+    if (!g.deductMonthly || !g.monthlyContribution) return false;
+    const start = new Date(g.startDate + 'T12:00:00');
+    const end = new Date(g.deadline + 'T12:00:00');
+    const monthDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 15);
+    return monthDate >= start && monthDate <= end;
+  });
+  const totalRecurringGoals = recurringGoals.reduce((s, g) => s + g.monthlyContribution, 0);
+
+  const recurringInvestments = investments.filter(i => {
+    if (!i.deductMonthly || !i.monthlyContribution) return false;
+    const start = new Date(i.investmentDate + 'T12:00:00');
+    const end = i.endDate ? new Date(i.endDate + 'T12:00:00') : new Date('2099-12-31T12:00:00');
+    const monthDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 15);
+    return monthDate >= start && monthDate <= end;
+  });
+  const totalRecurringInvestments = recurringInvestments.reduce((s, i) => s + i.monthlyContribution, 0);
+  const totalSavings = totalRecurringGoals + totalRecurringInvestments;
+
+  // 5. Cálculo Final: Sobra = Receitas - (Despesas Banco + Faturas + Empréstimos + Aportes)
+  const totalExpensesAll = totalBankExpenses + totalCardsInvoice + totalLoans + totalSavings;
   const remaining = totalIncome - totalExpensesAll;
   
   const isNegative = remaining < 0;
@@ -86,6 +106,7 @@ export default function Dashboard() {
     { name: 'Contas Fixas / Bancárias', value: totalBankExpenses, color: '#f59e0b' },
     { name: 'Cartões de Crédito', value: totalCardsInvoice, color: '#6366f1' },
     { name: 'Empréstimos', value: totalLoans, color: '#ec4899' },
+    { name: 'Aportes / Guardar', value: totalSavings, color: '#10b981' },
   ].filter(d => d.value > 0);
 
   // 7. Limite Diário (Hoje vs Mês que Vem)
@@ -114,8 +135,25 @@ export default function Dashboard() {
       const monthDate = new Date(d.getFullYear(), d.getMonth(), 15);
       return monthDate >= start && monthDate <= end;
     }).reduce((s, l) => s + l.monthlyPayment, 0);
-    return mTotalIncome - (mBankExp + mCards + mLoans);
-  }, [currentDate, transactions, settings, cards, loans]);
+
+    const mGoals = goals.filter(g => {
+      if (!g.deductMonthly || !g.monthlyContribution) return false;
+      const start = new Date(g.startDate + 'T12:00:00');
+      const end = new Date(g.deadline + 'T12:00:00');
+      const monthDate = new Date(d.getFullYear(), d.getMonth(), 15);
+      return monthDate >= start && monthDate <= end;
+    }).reduce((s, g) => s + g.monthlyContribution, 0);
+
+    const mInvestments = investments.filter(i => {
+      if (!i.deductMonthly || !i.monthlyContribution) return false;
+      const start = new Date(i.investmentDate + 'T12:00:00');
+      const end = i.endDate ? new Date(i.endDate + 'T12:00:00') : new Date('2099-12-31T12:00:00');
+      const monthDate = new Date(d.getFullYear(), d.getMonth(), 15);
+      return monthDate >= start && monthDate <= end;
+    }).reduce((s, i) => s + i.monthlyContribution, 0);
+
+    return mTotalIncome - (mBankExp + mCards + mLoans + mGoals + mInvestments);
+  }, [currentDate, transactions, settings, cards, loans, goals, investments]);
 
   const daysInNextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 2, 0).getDate();
   const nextMonthDailyBudget = Math.max(0, nextMonthRemaining) / daysInNextMonth;
@@ -144,14 +182,30 @@ export default function Dashboard() {
         return monthDate >= start && monthDate <= end;
       }).reduce((s, l) => s + l.monthlyPayment, 0);
 
+      const mGoals = goals.filter(g => {
+        if (!g.deductMonthly || !g.monthlyContribution) return false;
+        const start = new Date(g.startDate + 'T12:00:00');
+        const end = new Date(g.deadline + 'T12:00:00');
+        const monthDate = new Date(d.getFullYear(), d.getMonth(), 15);
+        return monthDate >= start && monthDate <= end;
+      }).reduce((s, g) => s + g.monthlyContribution, 0);
+
+      const mInvestments = investments.filter(i => {
+        if (!i.deductMonthly || !i.monthlyContribution) return false;
+        const start = new Date(i.investmentDate + 'T12:00:00');
+        const end = i.endDate ? new Date(i.endDate + 'T12:00:00') : new Date('2099-12-31T12:00:00');
+        const monthDate = new Date(d.getFullYear(), d.getMonth(), 15);
+        return monthDate >= start && monthDate <= end;
+      }).reduce((s, i) => s + i.monthlyContribution, 0);
+
       data.push({
         name: mName.toUpperCase(),
         Receitas: mTotalIncome,
-        Despesas: mBankExp + mCards + mLoans,
+        Despesas: mBankExp + mCards + mLoans + mGoals + mInvestments,
       });
     }
     return data;
-  }, [currentDate, transactions, settings, cards, loans]);
+  }, [currentDate, transactions, settings, cards, loans, goals, investments]);
 
   return (
     <div className="space-y-6">
@@ -235,10 +289,11 @@ export default function Dashboard() {
             <h3 className="font-bold text-[var(--fg)] text-sm">A Pagar (Pendentes)</h3>
             <div className="p-2 bg-amber-500/10 text-amber-500 rounded-lg"><Banknote size={18} /></div>
           </div>
-          <p className="text-2xl font-bold font-heading text-[var(--fg)]">{formatCurrency(bankExpensesPending + totalLoans)}</p>
+          <p className="text-2xl font-bold font-heading text-[var(--fg)]">{formatCurrency(bankExpensesPending + totalLoans + totalSavings)}</p>
           <div className="mt-4 space-y-2 text-xs text-[var(--text-muted)]">
             <div className="flex justify-between"><span>Contas / Boletos:</span><span className="font-semibold">{formatCurrency(bankExpensesPending)}</span></div>
-            <div className="flex justify-between"><span>Empréstimos:</span><span className="font-semibold">{formatCurrency(totalLoans)}</span></div>
+            {totalLoans > 0 && <div className="flex justify-between"><span>Empréstimos:</span><span className="font-semibold">{formatCurrency(totalLoans)}</span></div>}
+            {totalSavings > 0 && <div className="flex justify-between"><span>Aportes / Guardar:</span><span className="font-semibold text-emerald-500">{formatCurrency(totalSavings)}</span></div>}
           </div>
         </motion.div>
 

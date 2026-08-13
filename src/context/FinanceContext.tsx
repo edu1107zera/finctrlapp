@@ -102,7 +102,10 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
         setGoals(goalsData.map((g: any) => ({
           id: g.id, name: g.name, targetAmount: Number(g.target_amount),
           currentAmount: Number(g.current_amount), monthlyContribution: Number(g.monthly_contribution),
-          annualInterestRate: Number(g.annual_interest_rate), deadline: g.deadline
+          annualInterestRate: Number(g.annual_interest_rate), 
+          startDate: g.start_date || new Date().toISOString().split('T')[0],
+          deadline: g.deadline,
+          deductMonthly: Boolean(g.deduct_monthly)
         })));
       }
 
@@ -141,7 +144,9 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
         setInvestments(invData.map((i: any) => ({
           id: i.id, name: i.name, institution: i.institution || '',
           investedAmount: Number(i.invested_amount), currentAmount: Number(i.current_amount),
-          investmentDate: i.investment_date, objective: i.objective || ''
+          monthlyContribution: Number(i.monthly_contribution || 0),
+          investmentDate: i.investment_date, endDate: i.end_date,
+          objective: i.objective || '', deductMonthly: Boolean(i.deduct_monthly)
         })));
       }
     }
@@ -213,7 +218,8 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
     await supabase.from('goals').insert([{
       id: newGoal.id, name: newGoal.name, target_amount: newGoal.targetAmount,
       current_amount: newGoal.currentAmount, monthly_contribution: newGoal.monthlyContribution,
-      annual_interest_rate: newGoal.annualInterestRate, deadline: newGoal.deadline,
+      annual_interest_rate: newGoal.annualInterestRate, start_date: newGoal.startDate,
+      deadline: newGoal.deadline, deduct_monthly: newGoal.deductMonthly || false,
       user_id: user?.id
     }]);
   };
@@ -228,7 +234,9 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
     if (updates.currentAmount !== undefined) payload.current_amount = updates.currentAmount;
     if (updates.monthlyContribution !== undefined) payload.monthly_contribution = updates.monthlyContribution;
     if (updates.annualInterestRate !== undefined) payload.annual_interest_rate = updates.annualInterestRate;
+    if (updates.startDate) payload.start_date = updates.startDate;
     if (updates.deadline) payload.deadline = updates.deadline;
+    if (updates.deductMonthly !== undefined) payload.deduct_monthly = updates.deductMonthly;
 
     await supabase.from('goals').update(payload).eq('id', id).eq('user_id', user?.id);
     setGoals(prev => prev.map(g => g.id === id ? { ...g, ...updates } : g));
@@ -335,7 +343,9 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
     const { data } = await supabase.from('investments').insert([{
       id, name: inv.name, institution: inv.institution,
       invested_amount: inv.investedAmount, current_amount: inv.currentAmount,
-      investment_date: inv.investmentDate, objective: inv.objective,
+      monthly_contribution: inv.monthlyContribution || 0,
+      investment_date: inv.investmentDate, end_date: inv.endDate,
+      objective: inv.objective, deduct_monthly: inv.deductMonthly || false,
       user_id: user?.id
     }]).select('*');
     if (data && data[0]) {
@@ -343,7 +353,9 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
       const newInv: Investment = {
         id: i.id, name: i.name, institution: i.institution || '',
         investedAmount: Number(i.invested_amount), currentAmount: Number(i.current_amount),
-        investmentDate: i.investment_date, objective: i.objective || ''
+        monthlyContribution: Number(i.monthly_contribution || 0),
+        investmentDate: i.investment_date, endDate: i.end_date,
+        objective: i.objective || '', deductMonthly: Boolean(i.deduct_monthly)
       };
       setInvestments(prev => [newInv, ...prev]);
       return newInv;

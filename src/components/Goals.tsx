@@ -22,6 +22,7 @@ export default function Goals() {
     currentAmount: '',
     monthlyContribution: '',
     annualInterestRate: '10',
+    startDate: new Date().toISOString().split('T')[0],
     deadline: ''
   });
 
@@ -35,22 +36,12 @@ export default function Goals() {
       currentAmount: parseFloat(formData.currentAmount) || 0,
       monthlyContribution: parseFloat(formData.monthlyContribution) || 0,
       annualInterestRate: parseFloat(formData.annualInterestRate) || 0,
-      deadline: formData.deadline
+      startDate: formData.startDate,
+      deadline: formData.deadline,
+      deductMonthly: deductFromBalance
     });
 
-    if (deductFromBalance && parseFloat(formData.currentAmount) > 0) {
-      addTransaction({
-        accountId: accounts[0]?.id || '',
-        type: 'expense',
-        amount: parseFloat(formData.currentAmount),
-        category: 'Metas',
-        date: new Date().toISOString().split('T')[0],
-        description: `Aporte Inicial - Meta: ${formData.name}`,
-        status: 'paid'
-      });
-    }
-
-    setFormData({ name: '', targetAmount: '', currentAmount: '', monthlyContribution: '', annualInterestRate: '10', deadline: '' });
+    setFormData({ name: '', targetAmount: '', currentAmount: '', monthlyContribution: '', annualInterestRate: '10', startDate: new Date().toISOString().split('T')[0], deadline: '' });
     setIsAdding(false);
     setDeductFromBalance(false);
   };
@@ -139,7 +130,16 @@ export default function Goals() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Data Alvo Desejada</label>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Mês de Início</label>
+                <input 
+                  type="date" required
+                  className="w-full p-3 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-zinc-100 [color-scheme:light] dark:[color-scheme:dark] transition-shadow"
+                  value={formData.startDate}
+                  onChange={e => setFormData({...formData, startDate: e.target.value})}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Mês Alvo (Término)</label>
                 <input 
                   type="date" required
                   className="w-full p-3 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-zinc-100 [color-scheme:light] dark:[color-scheme:dark] transition-shadow"
@@ -176,7 +176,7 @@ export default function Goals() {
                   className="w-5 h-5 rounded border-indigo-300 text-indigo-600 focus:ring-indigo-600"
                 />
                 <label htmlFor="deductGoal" className="text-sm font-medium text-indigo-900 dark:text-indigo-200 cursor-pointer">
-                  Descontar "Valor Inicial" do saldo (registrar como despesa)
+                  Descontar "Aporte Mensal" automaticamente do fluxo de caixa do Dashboard
                 </label>
               </div>
               <div className="lg:col-span-3 flex justify-end space-x-3 mt-4">

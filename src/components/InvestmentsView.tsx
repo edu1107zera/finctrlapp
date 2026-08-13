@@ -13,7 +13,9 @@ export default function InvestmentsView() {
     institution: '',
     investedAmount: '',
     currentAmount: '',
+    monthlyContribution: '',
     investmentDate: new Date().toISOString().split('T')[0],
+    endDate: '',
     objective: '',
   });
 
@@ -25,23 +27,14 @@ export default function InvestmentsView() {
       institution: form.institution,
       investedAmount: parseFloat(form.investedAmount),
       currentAmount: parseFloat(form.currentAmount) || parseFloat(form.investedAmount),
+      monthlyContribution: parseFloat(form.monthlyContribution) || 0,
       investmentDate: form.investmentDate,
+      endDate: form.endDate,
       objective: form.objective,
+      deductMonthly: deductFromBalance
     });
 
-    if (deductFromBalance && parseFloat(form.investedAmount) > 0) {
-      await addTransaction({
-        accountId: accounts[0]?.id || '',
-        type: 'expense',
-        amount: parseFloat(form.investedAmount),
-        category: 'Investimentos',
-        date: form.investmentDate,
-        description: `Aplicação - ${form.name}`,
-        status: 'paid'
-      });
-    }
-
-    setForm({ name: '', institution: '', investedAmount: '', currentAmount: '', investmentDate: new Date().toISOString().split('T')[0], objective: '' });
+    setForm({ name: '', institution: '', investedAmount: '', currentAmount: '', monthlyContribution: '', investmentDate: new Date().toISOString().split('T')[0], endDate: '', objective: '' });
     setIsAdding(false);
     setDeductFromBalance(false);
   };
@@ -120,8 +113,16 @@ export default function InvestmentsView() {
                 <input type="number" min="0" step="0.01" className="input-style" placeholder="0,00 (deixe em branco = igual ao aplicado)" value={form.currentAmount} onChange={e => setForm({ ...form, currentAmount: e.target.value })} />
               </div>
               <div>
-                <label className="label-style">Data de Aplicação</label>
+                <label className="label-style">Aporte Mensal (R$)</label>
+                <input type="number" min="0" step="0.01" className="input-style" placeholder="0,00" value={form.monthlyContribution} onChange={e => setForm({ ...form, monthlyContribution: e.target.value })} />
+              </div>
+              <div>
+                <label className="label-style">Mês de Início (Data Aplicação)</label>
                 <input type="date" className="input-style [color-scheme:light] dark:[color-scheme:dark]" value={form.investmentDate} onChange={e => setForm({ ...form, investmentDate: e.target.value })} />
+              </div>
+              <div>
+                <label className="label-style">Mês Final (Opcional)</label>
+                <input type="date" className="input-style [color-scheme:light] dark:[color-scheme:dark]" value={form.endDate} onChange={e => setForm({ ...form, endDate: e.target.value })} />
               </div>
               <div>
                 <label className="label-style">Objetivo (opcional)</label>
@@ -136,7 +137,7 @@ export default function InvestmentsView() {
                   className="w-5 h-5 rounded border-indigo-300 text-indigo-600 focus:ring-indigo-600"
                 />
                 <label htmlFor="deductInvestment" className="text-sm font-medium text-[var(--fg)] cursor-pointer">
-                  Descontar "Valor Aplicado" do saldo (registrar como despesa)
+                  Descontar "Aporte Mensal" automaticamente do fluxo de caixa do Dashboard
                 </label>
               </div>
               <div className="md:col-span-2 flex justify-end gap-3 mt-2">
