@@ -200,7 +200,15 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     const seen = localStorage.getItem(getKey(uid, 'hasSeenOnboarding'));
     const saved = JSON.parse(localStorage.getItem(getKey(uid, 'completedSteps')) || '[]');
     setCompletedSteps(saved);
-    if (!seen) setShowOnboarding(true);
+    if (!seen) {
+      const createdAt = new Date(user.created_at);
+      const diffHours = (new Date().getTime() - createdAt.getTime()) / (1000 * 60 * 60);
+      if (diffHours < 1) {
+        setShowOnboarding(true);
+      } else {
+        localStorage.setItem(getKey(uid, 'hasSeenOnboarding'), 'true');
+      }
+    }
   }, [user, uid]);
 
   const steps = tutorialMode === 'complete' ? COMPLETE_STEPS : BASIC_STEPS;

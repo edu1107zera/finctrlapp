@@ -4,7 +4,7 @@ import { formatCurrency, cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Wallet, TrendingUp, ArrowUpRight, ArrowDownRight,
-  CreditCard, Banknote, Calendar, ChevronLeft, ChevronRight, Calculator, PieChart as PieChartIcon
+  CreditCard, Banknote, Calendar, ChevronLeft, ChevronRight, Calculator, PieChart as PieChartIcon, Pin, PinOff
 } from 'lucide-react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
 import { Card } from '../types';
@@ -21,8 +21,28 @@ export default function Dashboard() {
   const { transactions, settings, loans, cards, goals, investments } = useFinance();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showNextMonthBudget, setShowNextMonthBudget] = useState(false);
+  const [pinnedMonth, setPinnedMonth] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    const saved = localStorage.getItem('nixx_pinned_month');
+    if (saved) {
+      const [y, m] = saved.split('-');
+      setCurrentDate(new Date(parseInt(y), parseInt(m) - 1, 1));
+      setPinnedMonth(saved);
+    }
+  }, []);
 
   const monthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+  
+  const handleTogglePin = () => {
+    if (pinnedMonth === monthKey) {
+      localStorage.removeItem('nixx_pinned_month');
+      setPinnedMonth(null);
+    } else {
+      localStorage.setItem('nixx_pinned_month', monthKey);
+      setPinnedMonth(monthKey);
+    }
+  };
   
   const handlePrevMonth = () => {
     const d = new Date(currentDate);
@@ -216,12 +236,28 @@ export default function Dashboard() {
           <p className="text-[var(--text-muted)] mt-1">Veja exatamente quanto entra e quanto sai neste mês.</p>
         </div>
         
-        <div className="flex items-center gap-3 bg-[var(--surface-2)] p-1.5 rounded-full border border-[var(--border)]">
-          <button onClick={handlePrevMonth} className="p-2 hover:bg-[var(--surface)] rounded-full transition text-[var(--text-muted)] hover:text-[var(--fg)]"><ChevronLeft size={18} /></button>
-          <button onClick={handleToday} className="px-4 py-1.5 font-bold capitalize text-sm text-[var(--fg)] hover:bg-[var(--surface)] rounded-full transition min-w-[140px] text-center">
-            {monthName}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <button
+            onClick={handleTogglePin}
+            className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border transition-colors shadow-sm h-10",
+              pinnedMonth === monthKey 
+                ? "bg-indigo-500/10 text-indigo-500 border-indigo-500/20" 
+                : "bg-[var(--surface-2)] text-[var(--text-muted)] border-[var(--border)] hover:text-[var(--fg)]"
+            )}
+            title={pinnedMonth === monthKey ? "Desafixar mês" : "Fixar este mês como padrão"}
+          >
+            {pinnedMonth === monthKey ? <PinOff size={14} /> : <Pin size={14} />}
+            {pinnedMonth === monthKey ? "Mês Fixado" : "Fixar Mês"}
           </button>
-          <button onClick={handleNextMonth} className="p-2 hover:bg-[var(--surface)] rounded-full transition text-[var(--text-muted)] hover:text-[var(--fg)]"><ChevronRight size={18} /></button>
+          
+          <div className="flex items-center gap-3 bg-[var(--surface-2)] p-1.5 rounded-full border border-[var(--border)]">
+            <button onClick={handlePrevMonth} className="p-2 hover:bg-[var(--surface)] rounded-full transition text-[var(--text-muted)] hover:text-[var(--fg)]"><ChevronLeft size={18} /></button>
+            <button onClick={handleToday} className="px-4 py-1.5 font-bold capitalize text-sm text-[var(--fg)] hover:bg-[var(--surface)] rounded-full transition min-w-[140px] text-center" title="Ir para o mês atual">
+              {monthName}
+            </button>
+            <button onClick={handleNextMonth} className="p-2 hover:bg-[var(--surface)] rounded-full transition text-[var(--text-muted)] hover:text-[var(--fg)]"><ChevronRight size={18} /></button>
+          </div>
         </div>
       </div>
 
