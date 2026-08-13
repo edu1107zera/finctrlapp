@@ -7,9 +7,10 @@ import { AreaChart, Area, CartesianGrid, Tooltip, ResponsiveContainer } from 're
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function Goals() {
-  const { goals, addGoal, deleteGoal, transactions } = useFinance();
+  const { goals, addGoal, deleteGoal, transactions, addTransaction, accounts } = useFinance();
   const { theme } = useTheme();
   const [isAdding, setIsAdding] = useState(false);
+  const [deductFromBalance, setDeductFromBalance] = useState(false);
 
   const totalIncome = useMemo(() => {
     return transactions.filter(t => t.type === 'income').reduce((acc, t) => acc + t.amount, 0);
@@ -37,8 +38,21 @@ export default function Goals() {
       deadline: formData.deadline
     });
 
+    if (deductFromBalance && parseFloat(formData.currentAmount) > 0) {
+      addTransaction({
+        accountId: accounts[0]?.id || '',
+        type: 'expense',
+        amount: parseFloat(formData.currentAmount),
+        category: 'Metas',
+        date: new Date().toISOString().split('T')[0],
+        description: `Aporte Inicial - Meta: ${formData.name}`,
+        status: 'paid'
+      });
+    }
+
     setFormData({ name: '', targetAmount: '', currentAmount: '', monthlyContribution: '', annualInterestRate: '10', deadline: '' });
     setIsAdding(false);
+    setDeductFromBalance(false);
   };
 
   // Advanced simulation: calculates exactly when the goal will be hit
@@ -152,6 +166,18 @@ export default function Goals() {
                   onChange={e => setFormData({...formData, annualInterestRate: e.target.value})}
                   placeholder="Ex: 10 para Selic aprox."
                 />
+              </div>
+              <div className="lg:col-span-3 flex items-center gap-3 bg-indigo-50 dark:bg-indigo-500/10 p-4 rounded-2xl border border-indigo-100 dark:border-indigo-500/20">
+                <input
+                  type="checkbox"
+                  id="deductGoal"
+                  checked={deductFromBalance}
+                  onChange={(e) => setDeductFromBalance(e.target.checked)}
+                  className="w-5 h-5 rounded border-indigo-300 text-indigo-600 focus:ring-indigo-600"
+                />
+                <label htmlFor="deductGoal" className="text-sm font-medium text-indigo-900 dark:text-indigo-200 cursor-pointer">
+                  Descontar "Valor Inicial" do saldo (registrar como despesa)
+                </label>
               </div>
               <div className="lg:col-span-3 flex justify-end space-x-3 mt-4">
                 <button type="button" onClick={() => setIsAdding(false)} className="px-6 py-3 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition font-medium">Cancelar</button>

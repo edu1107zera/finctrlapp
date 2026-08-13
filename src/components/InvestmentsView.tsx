@@ -5,8 +5,9 @@ import { useFinance } from '../context/FinanceContext';
 import { formatCurrency, cn } from '../lib/utils';
 
 export default function InvestmentsView() {
-  const { investments, addInvestment, deleteInvestment } = useFinance();
+  const { investments, addInvestment, deleteInvestment, addTransaction, accounts } = useFinance();
   const [isAdding, setIsAdding] = useState(false);
+  const [deductFromBalance, setDeductFromBalance] = useState(false);
   const [form, setForm] = useState({
     name: '',
     institution: '',
@@ -27,8 +28,22 @@ export default function InvestmentsView() {
       investmentDate: form.investmentDate,
       objective: form.objective,
     });
+
+    if (deductFromBalance && parseFloat(form.investedAmount) > 0) {
+      await addTransaction({
+        accountId: accounts[0]?.id || '',
+        type: 'expense',
+        amount: parseFloat(form.investedAmount),
+        category: 'Investimentos',
+        date: form.investmentDate,
+        description: `Aplicação - ${form.name}`,
+        status: 'paid'
+      });
+    }
+
     setForm({ name: '', institution: '', investedAmount: '', currentAmount: '', investmentDate: new Date().toISOString().split('T')[0], objective: '' });
     setIsAdding(false);
+    setDeductFromBalance(false);
   };
 
   const totalInvested = investments.reduce((s, i) => s + i.investedAmount, 0);
@@ -111,6 +126,18 @@ export default function InvestmentsView() {
               <div>
                 <label className="label-style">Objetivo (opcional)</label>
                 <input type="text" className="input-style" placeholder="Ex: Reserva de emergência, Aposentadoria..." value={form.objective} onChange={e => setForm({ ...form, objective: e.target.value })} />
+              </div>
+              <div className="md:col-span-2 flex items-center gap-3 bg-[var(--surface-2)] p-4 rounded-xl border border-[var(--border)] mt-2">
+                <input
+                  type="checkbox"
+                  id="deductInvestment"
+                  checked={deductFromBalance}
+                  onChange={(e) => setDeductFromBalance(e.target.checked)}
+                  className="w-5 h-5 rounded border-indigo-300 text-indigo-600 focus:ring-indigo-600"
+                />
+                <label htmlFor="deductInvestment" className="text-sm font-medium text-[var(--fg)] cursor-pointer">
+                  Descontar "Valor Aplicado" do saldo (registrar como despesa)
+                </label>
               </div>
               <div className="md:col-span-2 flex justify-end gap-3 mt-2">
                 <button type="button" onClick={() => setIsAdding(false)} className="px-6 py-3 text-[var(--text-muted)] hover:bg-[var(--surface-2)] rounded-xl transition font-medium text-sm">Cancelar</button>
