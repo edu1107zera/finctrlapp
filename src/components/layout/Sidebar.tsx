@@ -67,7 +67,7 @@ export function Sidebar({ currentView, onNavigate, isOpen, onClose }: SidebarPro
         </button>
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1 scrollbar-hide">
+      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1 scrollbar-thin">
         {mainNav.map((item) => (
           <button
             key={item.id}
