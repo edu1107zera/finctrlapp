@@ -11,6 +11,7 @@ import { Sidebar } from './components/layout/Sidebar';
 import { BottomNav } from './components/layout/BottomNav';
 import { CommandPalette } from './components/layout/CommandPalette';
 import { ThemeSwitcher } from './components/layout/ThemeSwitcher';
+import { NotificationBell } from './components/layout/NotificationBell';
 import Dashboard from './components/Dashboard';
 import Transactions from './components/Transactions';
 import Goals from './components/Goals';
@@ -94,6 +95,7 @@ function AppContent() {
       <main className="flex-1 flex flex-col min-w-0 h-full overflow-hidden relative">
         {/* Desktop header */}
         <header className="hidden lg:flex items-center justify-end gap-3 px-6 py-3 bg-[var(--surface)]/60 backdrop-blur-xl border-b border-[var(--border)] z-30">
+          <NotificationBell />
           <ThemeSwitcher />
         </header>
 
@@ -101,6 +103,7 @@ function AppContent() {
         <header className="lg:hidden flex items-center justify-between px-6 py-4 bg-[var(--surface)]/80 backdrop-blur-xl border-b border-[var(--border)] z-30">
           <h1 className="text-xl font-bold font-heading tracking-tight text-[var(--fg)]">Nixx</h1>
           <div className="flex items-center gap-2">
+            <NotificationBell />
             <ThemeSwitcher />
             <button onClick={() => setIsCommandPaletteOpen(true)} className="p-2 bg-[var(--surface-2)] text-[var(--text-muted)] hover:text-[var(--fg)] rounded-xl border border-[var(--border)]">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>

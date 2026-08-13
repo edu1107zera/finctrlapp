@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { motion } from 'motion/react';
-import { Lightbulb, TrendingUp, TrendingDown, AlertTriangle, Target, CreditCard, Wallet, Info } from 'lucide-react';
+import { Lightbulb, TrendingUp, TrendingDown, AlertTriangle, Target, CreditCard, Wallet, Info, Landmark } from 'lucide-react';
 import { useFinance } from '../context/FinanceContext';
 import { formatCurrency, cn } from '../lib/utils';
 
@@ -118,6 +118,20 @@ export default function InsightsView() {
           value: `+${pct.toFixed(1)}%`,
         });
       }
+    }
+
+    // 4.5. Loans insight
+    const activeLoans = loans.filter(l => l.status === 'active');
+    if (activeLoans.length > 0) {
+      const totalLoanPayment = activeLoans.reduce((s, l) => s + l.monthlyPayment, 0);
+      list.push({
+        id: 'active-loans',
+        icon: <Landmark size={20} />,
+        title: activeLoans.length === 1 ? '1 Empréstimo ativo' : `${activeLoans.length} Empréstimos ativos`,
+        description: `Você tem parcelas mensais de ${formatCurrency(totalLoanPayment)} referentes a empréstimos.`,
+        type: 'neutral',
+        value: formatCurrency(totalLoanPayment),
+      });
     }
 
     // 5. Goals status
