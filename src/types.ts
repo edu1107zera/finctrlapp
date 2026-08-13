@@ -67,3 +67,13 @@ export interface Card {
   dueDay: number;
   color: string;
 }
+
+export interface Investment {
+  id: string;
+  name: string;
+  institution: string;
+  investedAmount: number;
+  currentAmount: number;
+  investmentDate: string;
+  objective: string;
+}

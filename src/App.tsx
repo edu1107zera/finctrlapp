@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { FinanceProvider } from './context/FinanceContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { OnboardingProvider } from './context/OnboardingContext';
 import { Sidebar } from './components/layout/Sidebar';
 import { BottomNav } from './components/layout/BottomNav';
 import { CommandPalette } from './components/layout/CommandPalette';
@@ -22,6 +23,13 @@ import HistoryView from './components/HistoryView';
 import ExpensesView from './components/ExpensesView';
 import CardsView from './components/CardsView';
 import ProfileView from './components/ProfileView';
+import BudgetView from './components/BudgetView';
+import ReportsView from './components/ReportsView';
+import InsightsView from './components/InsightsView';
+import InvestmentsView from './components/InvestmentsView';
+import HelpCenter from './components/onboarding/HelpCenter';
+import OnboardingModal from './components/onboarding/OnboardingModal';
+import TutorialPanel from './components/onboarding/TutorialPanel';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import LoginScreen from './components/LoginScreen';
 import RubikParticles from './components/RubikParticles';
@@ -40,18 +48,23 @@ function AppContent() {
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'dashboard': return <Dashboard />;
-      case 'transactions': return <Transactions />;
-      case 'accounts': return <Accounts />;
-      case 'goals': return <Goals />;
-      case 'ai': return <AIAdvisor />;
-      case 'calendar': return <CalendarView />;
-      case 'settings': return <SettingsView />;
-      case 'loans': return <LoansView />;
-      case 'cards': return <CardsView />;
-      case 'history': return <HistoryView />;
-      case 'expenses': return <ExpensesView />;
-      case 'profile': return <ProfileView />;
+      case 'dashboard':     return <Dashboard />;
+      case 'transactions':  return <Transactions />;
+      case 'accounts':      return <Accounts />;
+      case 'goals':         return <Goals />;
+      case 'ai':            return <AIAdvisor />;
+      case 'calendar':      return <CalendarView />;
+      case 'settings':      return <SettingsView />;
+      case 'loans':         return <LoansView />;
+      case 'cards':         return <CardsView />;
+      case 'history':       return <HistoryView />;
+      case 'expenses':      return <ExpensesView />;
+      case 'profile':       return <ProfileView />;
+      case 'budget':        return <BudgetView />;
+      case 'reports':       return <ReportsView />;
+      case 'insights':      return <InsightsView />;
+      case 'investments':   return <InvestmentsView />;
+      case 'help':          return <HelpCenter onNavigate={setActiveTab} />;
       default: return (
         <div className="flex items-center justify-center h-full text-[var(--text-muted)]">
           <div className="text-center">
@@ -71,9 +84,9 @@ function AppContent() {
         onNavigate={(view) => { setActiveTab(view); }}
       />
 
-      <Sidebar 
-        currentView={activeTab} 
-        onNavigate={setActiveTab} 
+      <Sidebar
+        currentView={activeTab}
+        onNavigate={setActiveTab}
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
       />
@@ -121,13 +134,19 @@ function AppContent() {
         onNavigate={setActiveTab}
         onAddTrigger={() => document.dispatchEvent(new CustomEvent('open-command-palette'))}
       />
+
+      {/* Onboarding modal (first login) */}
+      <OnboardingModal onNavigate={setActiveTab} />
+
+      {/* Tutorial panel (active during tutorial) */}
+      <TutorialPanel onNavigate={setActiveTab} />
     </div>
   );
 }
 
 function AppRoot() {
   const { user, loading } = useAuth();
-  
+
   useEffect(() => {
     if (user && !loading) {
       window.dispatchEvent(new Event('nixx:expand'));
@@ -157,7 +176,9 @@ function AppRoot() {
             <motion.div key="app" className="w-full h-full" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1.2, delay: 0.1 }}>
               <ThemeProvider>
                 <FinanceProvider>
-                  <AppContent />
+                  <OnboardingProvider>
+                    <AppContent />
+                  </OnboardingProvider>
                 </FinanceProvider>
               </ThemeProvider>
             </motion.div>

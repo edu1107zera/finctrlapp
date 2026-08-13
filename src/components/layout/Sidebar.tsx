@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Wallet, CreditCard, Calendar, Target, TrendingUp, Sparkles, Settings, User, Search, Landmark, History, LogOut } from 'lucide-react';
+import { LayoutDashboard, Wallet, CreditCard, Calendar, Target, TrendingUp, Sparkles, Settings, User, Search, Landmark, History, LogOut, PieChart, BarChart3, Lightbulb, HelpCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { cn } from '../../lib/utils';
 
@@ -22,13 +22,17 @@ export function Sidebar({ currentView, onNavigate, isOpen, onClose }: SidebarPro
     { id: 'settings', label: 'Salário Fixo', icon: <TrendingUp size={20} /> },
     { id: 'calendar', label: 'Calendário', icon: <Calendar size={20} /> },
     { id: 'goals', label: 'Metas', icon: <Target size={20} /> },
+    { id: 'budget', label: 'Orçamento', icon: <PieChart size={20} /> },
     { id: 'investments', label: 'Investimentos', icon: <TrendingUp size={20} /> },
     { id: 'ai', label: 'Fin AI', icon: <Sparkles size={20} /> },
+    { id: 'reports', label: 'Relatórios', icon: <BarChart3 size={20} /> },
+    { id: 'insights', label: 'Insights', icon: <Lightbulb size={20} /> },
     { id: 'history', label: 'Histórico', icon: <History size={20} /> },
   ];
 
   const bottomNav = [
     { id: 'profile', label: 'Perfil', icon: <User size={20} /> },
+    { id: 'help', label: 'Ajuda & Tutoriais', icon: <HelpCircle size={20} /> },
   ];
 
   return (

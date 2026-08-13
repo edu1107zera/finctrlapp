@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { Transaction, Goal, Account, Settings, Loan, HistoryEntry, Card } from '../types';
+import { Transaction, Goal, Account, Settings, Loan, HistoryEntry, Card, Investment } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from './AuthContext';
 
@@ -29,6 +29,9 @@ interface FinanceContextType {
   addCard: (card: Omit<Card, 'id'>) => Promise<Card>;
   updateCard: (id: string, updates: Partial<Card>) => void;
   deleteCard: (id: string) => void;
+  investments: Investment[];
+  addInvestment: (inv: Omit<Investment, 'id'>) => Promise<Investment>;
+  deleteInvestment: (id: string) => void;
 }
 
 const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
@@ -48,6 +51,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
   const [loans, setLoans] = useState<Loan[]>([]);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [cards, setCards] = useState<Card[]>([]);
+  const [investments, setInvestments] = useState<Investment[]>([]);
 
   useEffect(() => {
     if (!user) {
@@ -58,6 +62,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
       setLoans([]);
       setHistory([]);
       setCards([]);
+      setInvestments([]);
       return;
     }
 
@@ -127,6 +132,16 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
         setCards(cardsData.map((c: any) => ({
           id: c.id, name: c.name, limitAmount: Number(c.limit_amount),
           closingDay: Number(c.closing_day), dueDay: Number(c.due_day), color: c.color
+        })));
+      }
+
+      // Investments
+      const { data: invData } = await supabase.from('investments').select('*').eq('user_id', user.id).order('investment_date', { ascending: false });
+      if (invData) {
+        setInvestments(invData.map((i: any) => ({
+          id: i.id, name: i.name, institution: i.institution || '',
+          investedAmount: Number(i.invested_amount), currentAmount: Number(i.current_amount),
+          investmentDate: i.investment_date, objective: i.objective || ''
         })));
       }
     }
@@ -314,6 +329,33 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
     setCards(cards.filter(c => c.id !== id));
   };
 
+  // ---- INVESTMENTS ----
+  const addInvestment = async (inv: Omit<Investment, 'id'>) => {
+    const id = uuidv4();
+    const { data } = await supabase.from('investments').insert([{
+      id, name: inv.name, institution: inv.institution,
+      invested_amount: inv.investedAmount, current_amount: inv.currentAmount,
+      investment_date: inv.investmentDate, objective: inv.objective,
+      user_id: user?.id
+    }]).select('*');
+    if (data && data[0]) {
+      const i = data[0];
+      const newInv: Investment = {
+        id: i.id, name: i.name, institution: i.institution || '',
+        investedAmount: Number(i.invested_amount), currentAmount: Number(i.current_amount),
+        investmentDate: i.investment_date, objective: i.objective || ''
+      };
+      setInvestments(prev => [newInv, ...prev]);
+      return newInv;
+    }
+    throw new Error('Failed to insert investment');
+  };
+
+  const deleteInvestment = async (id: string) => {
+    await supabase.from('investments').delete().eq('id', id).eq('user_id', user?.id);
+    setInvestments(prev => prev.filter(i => i.id !== id));
+  };
+
   return (
     <FinanceContext.Provider value={{
       accounts, addAccount, deleteAccount,
@@ -322,7 +364,8 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
       settings, updateSettings,
       loans, addLoan, deleteLoan, updateLoan,
       history, addHistoryEntry, bulkPayPending,
-      cards, addCard, updateCard, deleteCard
+      cards, addCard, updateCard, deleteCard,
+      investments, addInvestment, deleteInvestment,
     }}>
       {children}
     </FinanceContext.Provider>

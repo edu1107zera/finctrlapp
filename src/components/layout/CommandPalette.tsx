@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Search, ArrowRight, Wallet, Target, CreditCard, Sparkles, LogOut, Settings, Calendar, LineChart } from 'lucide-react';
+import { Search, ArrowRight, Wallet, Target, CreditCard, Sparkles, LogOut, Settings, Calendar, LineChart, PieChart, BarChart3, Lightbulb, HelpCircle, TrendingUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils';
 
@@ -32,10 +32,18 @@ export function CommandPalette({ isOpen, onClose, onNavigate }: CommandPalettePr
     { id: 'transactions', icon: <Wallet size={18} />, label: 'Transações', section: 'Navegação' },
     { id: 'accounts', icon: <Wallet size={18} />, label: 'Contas', section: 'Navegação' },
     { id: 'cards', icon: <CreditCard size={18} />, label: 'Cartões', section: 'Navegação' },
+    { id: 'loans', icon: <TrendingUp size={18} />, label: 'Empréstimos', section: 'Navegação' },
+    { id: 'expenses', icon: <CreditCard size={18} />, label: 'Despesas', section: 'Navegação' },
     { id: 'goals', icon: <Target size={18} />, label: 'Metas', section: 'Navegação' },
+    { id: 'budget', icon: <PieChart size={18} />, label: 'Orçamento', section: 'Navegação' },
+    { id: 'reports', icon: <BarChart3 size={18} />, label: 'Relatórios', section: 'Navegação' },
+    { id: 'insights', icon: <Lightbulb size={18} />, label: 'Insights', section: 'Navegação' },
+    { id: 'investments', icon: <TrendingUp size={18} />, label: 'Investimentos', section: 'Navegação' },
     { id: 'calendar', icon: <Calendar size={18} />, label: 'Calendário', section: 'Navegação' },
+    { id: 'history', icon: <Settings size={18} />, label: 'Histórico', section: 'Navegação' },
     { id: 'ai', icon: <Sparkles size={18} />, label: 'Perguntar para Fin AI', section: 'Ações' },
     { id: 'settings', icon: <Settings size={18} />, label: 'Configurações', section: 'Ações' },
+    { id: 'help', icon: <HelpCircle size={18} />, label: 'Ajuda & Tutoriais', section: 'Ações' },
   ];
 
   const filteredItems = query
